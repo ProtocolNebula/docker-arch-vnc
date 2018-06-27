@@ -1,33 +1,51 @@
 FROM base/archlinux
 
-# Exposed ports
-# OpenSSH
-EXPOSE 22
+# Thanks to:
+#  SSHD: https://github.com/retorillo/archlinux-sshd/blob/master/Dockerfile 
 
-# Main configuration
-RUN useradd -ms /bin/bash arch -p test
+#
+# INSTALLATIONS
+#
 
 # Main Services
-RUN pacman -Suy --noconfirm openssh
+RUN pacman -Sy --needed --noconfirm \
+  sudo vim sed openssh xorg xorg-xauth xorg-xinit git
 
-# Desktop envoirnment
-#RUN pacman -Sy --noconfirm enlightenment
-#RUN pacman -Sy --noconfirm terminology
+# Other interesting tools (add to pacman)
+# which tar grep awk wget 
+
+# Desktop environment
+RUN pacman -Sc --needed --noconfirm \
+    sudo enlightenment terminology
 
 # Tools
-#RUN pacman -Sy --noconfirm firefox
-#RUN pacman -Sy --noconfirm filezilla
-RUN pacman -Sy --noconfirm vim
+RUN pacman -Sc --needed --noconfirm \
+    sudo firefox filezilla
 
-# Configuring SSH
-#RUN echo "Port 22" >> /etc/ssh/sshd_config 
-#RUN echo "AllowUsers arch" >> /etc/ssh/sshd_config 
-#RUN echo "ListenAddress ::" >> /etc/ssh/sshd_config 
+# Clean pacman packages
+RUN pacman -Sc --noconfirm
 
-COPY copy/etc/ssh/sshd_config /etc/ssh/sshd_config
-COPY copy/home/arch/start.sh /home/arch/start.sh
+# CMD /home/arch/start.sh
 
-#RUN chmod 777 /home/arch/start.sh
+#
+# CONFIGURATIONS
+#
 
-#CMD /home/arch/start.sh
- 
+# Configuring locale
+ENV EDITOR='vim'
+RUN sed -ie 's/^#\(en_US\.UTF-8 UTF-8\)/\1/' /etc/locale.gen \
+  && locale-gen
+
+# Users creation/allowing access (create the users you need here)
+RUN useradd -mU -s /bin/bash docker && echo 'docker:docker' | chpasswd
+RUN echo "docker ALL=(ALL:ALL) ALL" | (EDITOR="tee -a" visudo)
+RUN echo "AllowUsers docker" >> /etc/ssh/sshd_config
+
+# Enable X11 forwarding
+RUN echo "X11Forwarding yes" >> /etc/ssh/sshd_config
+
+# Exposing ports
+EXPOSE 22
+
+# Start fix ssh keys
+CMD [ ! -f /etc/ssh/ssh_host_rsa_key ] && ssh-keygen -A; /bin/sshd -D

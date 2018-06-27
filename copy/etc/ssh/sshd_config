@@ -1,6 +1,0 @@
-PORT 22
-AllowUsers arch
-#ListenAddress ::
-PasswordAuthentication yes
-PermitRootLogin yes
-
