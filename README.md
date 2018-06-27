@@ -27,10 +27,24 @@ docker build . -t arch-vnc
 ## Start docker image
 Change ```5099``` with you disred SSH port
 
-### Normal mode (detached and remove on close)
+### Normal mode Without SSH (detached and non-remove on close)
 ```bash
-docker run --rm -dp 5099:22 --name arch-vnc arch-vnc:latest
+docker run -dp 5901:5091 --name arch-vnc arch-vnc:latest
 ```
+
+### Normal mode With SSH (detached and non-remove on close)
+```bash
+docker run -dp 5099:22 --name arch-vnc arch-vnc:latest
+```
+
+**Connect address:** IP_OR_DOMAIN:5901
+
+In this mode you need to connect with an ssh client to map the port:
+```bash
+ssh docker@IP_OR_DOMAIN -p 5099 -L 5901:IP_OR_DOMAIN:5901
+```
+
+**Connect address:** localhost:5901
 
 ### Testing (Attatched mode and remove on close)
 ```bash
