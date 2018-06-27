@@ -9,7 +9,7 @@ FROM base/archlinux
 
 # Main Services
 RUN pacman -Sy --needed --noconfirm \
-  sudo vim sed openssh xorg xorg-xauth xorg-xinit git
+  sudo vim sed openssh xorg xorg-xauth xorg-xinit git tigervnc 
 
 # Other interesting tools (add to pacman)
 # which tar grep awk wget 
